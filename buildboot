@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""Build bootloader images. Run this inside the arm64 Nix shell."""
+import json
+import sys
+
+from arguments import parse_arguments
+from config import BUILD_DIR, ROOT, available_configs, load_config, workspace
+from commands.build import build
+from commands.clean import clean
+from commands.sources import sources
+
+
+def main() -> None:
+    args = parse_arguments()
+
+    if args.command == "list":
+        for config in available_configs():
+            print(f"{config['board']}\t{config['release']}")
+        return
+
+    if args.command == "clean":
+        clean(BUILD_DIR, args.board, args.release)
+        return
+
+    config = load_config(args.board, args.release)
+    work = workspace(config)
+
+    if args.command == "plan":
+        print(json.dumps(config, indent=2, sort_keys=True))
+        return
+
+    if args.command == "sources":
+        sources(config, work)
+        return
+
+    build(config, work, work / "out", args.jobs, ROOT)
+    image = work / "out" / "imx-boot-tools" / config["packaging"]["output"]
+    print(f"built {image}")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (KeyError, ValueError) as error:
+        print(f"buildboot: error: {error}", file=sys.stderr)
+        raise SystemExit(2)

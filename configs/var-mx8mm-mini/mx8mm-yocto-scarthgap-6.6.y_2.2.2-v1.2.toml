@@ -1,0 +1,40 @@
+# This release supports DART-MX8M-MINI and VAR-SOM-MX8M-MINI, revision v1.1+.
+board = "var-mx8mm-mini"
+release = "mx8mm-yocto-scarthgap-6.6.y_2.2.2-v1.2"
+[board_config]
+soc = "iMX8MM"
+memory = "lpddr4-ddr4"
+
+[sources.uboot]
+directory = "uboot-imx"
+url = "https://github.com/varigit/uboot-imx"
+branch = "lf_v2024.04_6.6.52-2.2.2_var01"
+commit = "16e046f1dbf65360deb1fff230b76a752aff3f22"
+defconfig = "imx8mm_var_dart_defconfig"
+
+[sources.atf]
+directory = "imx-atf"
+url = "https://github.com/varigit/imx-atf"
+branch = "lf_v2.10_6.6.52-2.2.2_var01"
+
+[sources.mkimage]
+directory = "imx-mkimage"
+url = "https://github.com/varigit/imx-mkimage"
+branch = "lf-6.6.52_2.2.2_var01"
+
+[firmware.ddr]
+directory = "firmware-imx"
+package = "firmware-imx-8.26-d4c33ab.bin"
+url = "https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.26-d4c33ab.bin"
+files_glob = "firmware/ddr/synopsys/*"
+
+[packaging]
+soc = "iMX8MM"
+atf_platform = "imx8mm"
+dtbs = [
+    "imx8mm-var-dart-dt8mcustomboard.dtb",
+    "imx8mm-var-som-symphony.dtb",
+]
+target = "flash_lpddr4_ddr4_evk"
+output = "imx-boot-sd.bin"
+dd_seek_kib = 33

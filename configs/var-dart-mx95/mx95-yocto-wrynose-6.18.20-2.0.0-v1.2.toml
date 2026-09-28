@@ -1,0 +1,70 @@
+# DART-MX95 Wrynose boot image configuration.
+board = "var-dart-mx95"
+release = "mx95-yocto-wrynose-6.18.20-2.0.0-v1.2"
+
+[board_config]
+soc = "iMX95"
+memory = "lpddr5-8gb"
+
+[sources.uboot]
+directory = "uboot-imx"
+url = "https://github.com/varigit/uboot-imx"
+branch = "lf_v2026.04_6.18.20-2.0.0_var01"
+commit = "f11c8885ab02e572521da617c4da7be2e7366147"
+defconfig = "imx95_var_dart_defconfig"
+
+[sources.atf]
+directory = "imx-atf-variscite"
+url = "https://github.com/varigit/imx-atf"
+branch = "lf_v2.12_6.18.2-1.0.0_var01"
+commit = "bf53e42ff8fea3a1477df93ff264bcbee613f7aa"
+
+[sources.mkimage]
+directory = "imx-mkimage-variscite"
+url = "https://github.com/varigit/imx-mkimage"
+branch = "lf-6.18.20_2.0.0_var01"
+commit = "e877d8119d4599fb068f4599e6f22e2f4fcb593b"
+
+[sources.oei]
+directory = "imx-oei"
+url = "https://github.com/varigit/imx-oei"
+branch = "lf-6.18.20-2.0.0_var01"
+commit = "5ccc725d0ef7bc87f769974767c01a5f024ecd6f"
+
+[sources.system_manager]
+directory = "imx-sm"
+url = "https://github.com/varigit/imx-sm"
+branch = "lf-6.18.20-2.0.0_var01"
+commit = "d64248f0d565f313551f35f6cfafbc051eefa72c"
+
+[firmware.ddr]
+directory = "firmware-imx"
+package = "firmware-imx-8.32-1991416.bin"
+url = "https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.32-1991416.bin"
+files_glob = "firmware/ddr/synopsys/lpddr5*"
+
+[firmware.ele]
+directory = "firmware-ele-imx"
+package = "firmware-ele-imx-2.0.4-93492e0.bin"
+url = "https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-ele-imx-2.0.4-93492e0.bin"
+files_glob = "mx95b0-ahab-container.img"
+
+[oei]
+board = "mx95-var-dart"
+ddr_config = "lpddr5_8gb_6400mbps_train_timing"
+revision = "B0"
+
+[system_manager]
+config = "dart-mx95"
+
+[packaging]
+soc = "iMX95"
+atf_platform = "imx95"
+ele_container = "mx95b0-ahab-container.img"
+revision = "B0"
+oei = "YES"
+lpddr_type = "lpddr5"
+lpddr_function = "train"
+target = "flash_a55"
+output = "imx-boot"
+dd_seek_kib = 32
