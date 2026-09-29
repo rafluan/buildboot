@@ -1,0 +1,26 @@
+From 73509cb22ffab827dc3e3ccda2781683b8e8296d Mon Sep 17 00:00:00 2001
+From: Kelefa Sane <kelefa.sane@smile.fr>
+Date: Mon, 2 Jun 2025 11:07:08 +0200
+Subject: [PATCH] fix missing makefile rule dependency
+
+Ensure the generated parser header exists before compiling the lexer.
+---
+ code/build/make/rules.mk | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/code/build/make/rules.mk b/code/build/make/rules.mk
+index 7720e4b..239108b 100644
+--- a/code/build/make/rules.mk
++++ b/code/build/make/rules.mk
+@@ -35,6 +35,9 @@ LFLAGS  := -t
+ 	@echo "Link $@"
+ 	$(LD) $^ $(LDFLAGS) -o $@
+ 
++# cst_lexer.c includes cst_parser.h, generated with cst_parser.c.
++cst_lexer.o: cst_parser.c
++
+ %.o: %.c
+ 	@echo "Compile $@"
+ 	# generate dependency file
+-- 
+2.45.2

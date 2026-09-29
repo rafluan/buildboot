@@ -7,7 +7,7 @@ exports values to the shell tasks.
 ## Quick start
 
 ```sh
-nix develop /home/luan/nix-dev-shells#arm64
+nix develop
 ./buildboot list
 ./buildboot sources var-som-mx8mn mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1
 ./buildboot build var-som-mx8mn mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1 --jobs 8
@@ -19,6 +19,15 @@ board and release names. `sources` clones missing Git checkouts and downloads
 and extracts the firmware declared in the configuration. NXP firmware
 installers are run with `--auto-accept`. `clean` removes only `out/`, preserving
 source checkouts, downloaded archives, and extracted firmware.
+
+The project flake pins its Nix dependencies in `flake.lock`. Its development
+shell provides the native build tools, ARM64 and ARM32 cross-compilers, the
+ARM bare-metal toolchain version 15.2.rel1 selected by the NXP Yocto recipe for
+i.MX95, Python build utilities, and the NXP CST tools. Build the host tools
+separately with `nix build .#imx-cst` or `nix build .#arm-none-eabi-toolchain`.
+The optional `arm-none-eabi-gdb-py` frontend is omitted because the vendor
+binary requires a Python 3.8 ABI; the standard GDB and compiler tools remain
+available.
 
 ## Configuration and task layout
 
@@ -102,8 +111,8 @@ board DTBs:
 The i.MX95 flow builds U-Boot, ATF, OEI DDR and TCM images, System Manager,
 and the ELE container before packaging the `flash_a55` image. The configured
 OEI DDR timing must match the module's installed RAM size. The current
-configuration targets the 8 GB LPDDR5 DART-MX95 and requires `arm-none-eabi-gcc`
-in `PATH` (or an `ARM_NONE_EABI_PREFIX` pointing to the toolchain).
+configuration targets the 8 GB LPDDR5 DART-MX95. The local Nix shell provides
+the required `arm-none-eabi-gcc` toolchain.
 
 ```sh
 ./buildboot sources var-dart-mx95 mx95-yocto-wrynose-6.18.20-2.0.0-v1.2
