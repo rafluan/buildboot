@@ -4,7 +4,14 @@ import os
 import subprocess
 
 
-def build(config: dict, work: Path, output: Path, jobs: int, root: Path) -> None:
+def build(
+    config: dict,
+    work: Path,
+    output: Path,
+    jobs: int,
+    root: Path,
+    security: str = "none",
+) -> None:
     board = config["board_config"]
     sources = config["sources"]
     package = config["packaging"]
@@ -44,7 +51,27 @@ def build(config: dict, work: Path, output: Path, jobs: int, root: Path) -> None
         "LPDDR_FUNCTION": package.get("lpddr_function", ""),
         "BOOT_IMAGE": package["output"],
         "DD_SEEK_KIB": str(package["dd_seek_kib"]),
+        "BUILD_SECURITY": security,
     })
+
+    if security == "hab":
+        hab = config.get("hab")
+        certificates = config.get("sources", {}).get("hab_certs")
+        if not hab or not certificates:
+            raise ValueError(f"{config['board']} has no HAB configuration")
+        certs_dir = (
+            work
+            / certificates["directory"]
+            / hab.get("certificates", "iMX8M")
+        )
+        if not certs_dir.is_dir():
+            raise ValueError("HAB certificate files are missing; run buildboot sources first")
+        env.update({
+            "HAB_CERTS_DIR": str(certs_dir),
+            "HAB_CSF_TEMPLATE": str(root / hab["csf_template"]),
+            "HAB_CST_SERIAL": hab["serial"],
+            "HAB_CST_KEYPASS": hab["keypass"],
+        })
 
     task_runner = root / "tasks" / "run.sh"
     for task in ("do_configure", "do_compile", "do_package"):

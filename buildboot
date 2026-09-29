@@ -33,7 +33,7 @@ def main() -> None:
         sources(config, work)
         return
 
-    build(config, work, work / "out", args.jobs, ROOT)
+    build(config, work, work / "out", args.jobs, ROOT, args.security)
     image = work / "out" / "imx-boot-tools" / config["packaging"]["output"]
     print(f"built {image}")
 

@@ -11,7 +11,7 @@ def parse_arguments():
   buildboot list
   buildboot plan BOARD RELEASE
   buildboot sources BOARD RELEASE
-  buildboot build BOARD RELEASE --jobs 8
+  buildboot build BOARD RELEASE --jobs 8 [--security hab]
   buildboot clean BOARD [RELEASE]
 
 start with 'buildboot list' to see the available BOARD and RELEASE values.
@@ -30,6 +30,12 @@ start with 'buildboot list' to see the available BOARD and RELEASE values.
     build = commands.add_parser("build", help="build a bootloader image")
     add_config_arguments(build)
     build.add_argument("--jobs", type=int, default=1, help="number of parallel build jobs")
+    build.add_argument(
+        "--security",
+        choices=("none", "hab"),
+        default="none",
+        help="select the normal or HAB-secure task variant",
+    )
 
     clean = commands.add_parser("clean", help="remove generated output")
     clean.add_argument("board", metavar="BOARD")

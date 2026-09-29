@@ -3,6 +3,7 @@
 run_task() {
 	local task="$1"
 	local soc="${SOC,,}"
+	local security="${BUILD_SECURITY:-}"
 	local candidate
 	local -a candidates
 
@@ -12,6 +13,14 @@ run_task() {
 		imx9*)  candidates=("${task}_${soc}" "${task}_imx9" "$task") ;;
 		*)      candidates=("${task}_${soc}" "$task") ;;
 	esac
+
+	if [[ -n "$security" && "$security" != none ]]; then
+		local -a secure_candidates
+		for candidate in "${candidates[@]}"; do
+			secure_candidates+=("${candidate}_${security}")
+		done
+		candidates=("${secure_candidates[@]}" "${candidates[@]}")
+	fi
 
 	for candidate in "${candidates[@]}"; do
 		if declare -F "$candidate" >/dev/null; then

@@ -6,9 +6,6 @@ do_compile_imx_atf_imx8m() {
 
 	env -u LDFLAGS make -C "$ATF_DIR" \
 		"CROSS_COMPILE=$CROSS_COMPILE" \
-		"CC=${CROSS_COMPILE}gcc" "AS=${CROSS_COMPILE}gcc" \
-		"LD=${CROSS_COMPILE}gcc" "AR=${CROSS_COMPILE}gcc-ar" \
-		"OC=${CROSS_COMPILE}objcopy" "OD=${CROSS_COMPILE}objdump" \
 		"BUILD_BASE=$out" "PLAT=$ATF_PLATFORM" bl31
 }
 
@@ -18,8 +15,5 @@ do_compile_imx_atf_imx95() {
 
 	env -u LDFLAGS make -C "$ATF_DIR" \
 		"CROSS_COMPILE=$CROSS_COMPILE" \
-		"CC=${CROSS_COMPILE}gcc" "AS=${CROSS_COMPILE}gcc" \
-		"LD=${CROSS_COMPILE}gcc" "AR=${CROSS_COMPILE}gcc-ar" \
-		"OC=${CROSS_COMPILE}objcopy" "OD=${CROSS_COMPILE}objdump" \
 		"BUILD_BASE=$out" "PLAT=$ATF_PLATFORM" bl31
 }

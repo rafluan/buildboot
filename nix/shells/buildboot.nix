@@ -1,4 +1,4 @@
-{ pkgs, imx-cst, arm-none-eabi-toolchain }:
+{ pkgs, imx-cst, imx-signer, arm-none-eabi-toolchain }:
 
 let
   arm64 = pkgs.pkgsCross.aarch64-multiplatform.stdenv.cc;
@@ -23,6 +23,7 @@ pkgs.mkShell {
     cpio
     lz4
     openssl
+    zlib.dev
     perl
     rsync
     elfutils
@@ -55,11 +56,13 @@ pkgs.mkShell {
     ]))
 
     imx-cst
+    imx-signer
   ];
 
-  CROSS_COMPILE = "${arm64}/bin/${arm64.targetPrefix}";
-  CROSS_COMPILE_ARM32 = "${arm32}/bin/armv7l-unknown-linux-gnueabihf-";
+  CROSS_COMPILE = arm64.targetPrefix;
+  CROSS_COMPILE_ARM32 = arm32.targetPrefix;
   ARM_NONE_EABI_PREFIX = "${arm-none-eabi-toolchain}/bin/arm-none-eabi-";
+  SIG_TOOL_PATH = "${imx-cst}/bin";
 
   shellHook = ''
     export ARCH=arm64

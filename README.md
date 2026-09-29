@@ -24,10 +24,31 @@ The project flake pins its Nix dependencies in `flake.lock`. Its development
 shell provides the native build tools, ARM64 and ARM32 cross-compilers, the
 ARM bare-metal toolchain version 15.2.rel1 selected by the NXP Yocto recipe for
 i.MX95, Python build utilities, and the NXP CST tools. Build the host tools
-separately with `nix build .#imx-cst` or `nix build .#arm-none-eabi-toolchain`.
+separately with `nix build .#imx-cst`, `nix build .#imx-signer`, or
+`nix build .#arm-none-eabi-toolchain`.
 The optional `arm-none-eabi-gdb-py` frontend is omitted because the vendor
 binary requires a Python 3.8 ABI; the standard GDB and compiler tools remain
 available.
+
+## HAB-signed images
+
+HAB signing is optional. Add `--security hab` only when a signed i.MX8M boot
+image is required:
+
+```sh
+./buildboot sources var-som-mx8mn mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1
+./buildboot build var-som-mx8mn mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1 \
+    --security hab --jobs 8
+```
+
+The configuration pins the same public test PKI and `imx_signer` revision used
+by `meta-variscite-hab`. The signer reads the boot image, creates the CSF data,
+calls NXP CST, and writes the signed result to the normal output filename.
+These published keys are for development only. Never use them to provision or
+close a production device.
+
+The normal build command remains unsigned. The device does not need to be
+closed to boot and inspect a HAB-signed image.
 
 ## Configuration and task layout
 

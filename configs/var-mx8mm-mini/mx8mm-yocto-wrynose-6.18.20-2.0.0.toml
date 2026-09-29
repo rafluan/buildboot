@@ -25,6 +25,12 @@ url = "https://github.com/varigit/imx-mkimage"
 branch = "lf-6.18.20_2.0.0_var01"
 commit = "e877d8119d4599fb068f4599e6f22e2f4fcb593b"
 
+[sources.hab_certs]
+directory = "var-hab-certs"
+url = "https://github.com/varigit/var-hab-certs.git"
+branch = "master"
+commit = "0b2c9c39fbc5020b5faf8c7f1d0db5381c680785"
+
 [firmware.ddr]
 directory = "firmware-imx"
 package = "firmware-imx-8.32-1991416.bin"
@@ -41,3 +47,9 @@ dtbs = [
 target = "flash_lpddr4_ddr4_evk"
 output = "imx-boot-sd.bin"
 dd_seek_kib = 33
+
+[hab]
+certificates = "iMX8M"
+csf_template = "configs/hab/csf_hab4.cfg"
+serial = "1248163E"
+keypass = "Variscite_password"
