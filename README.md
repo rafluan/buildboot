@@ -66,8 +66,9 @@ encapsulation enabled, and ATF with the OP-TEE dispatcher. It replaces the
 prebuilt `tee.bin` from `imx-mkimage` with the newly built OP-TEE image. The
 result is the HAB-signed `dek-blob-generator-imx-boot-sd.bin`.
 
-This image starts on the closed board so U-Boot can encapsulate the two DEKs.
-It is not an encrypted image and contains a dummy DEK blob. The NXP procedure
+This image is a HAB-signed generator, not the final encrypted image. It can
+boot on an open development board for validation, but `dek_blob` can produce
+usable blobs only on a closed board. It contains a dummy DEK blob. The NXP procedure
 must still encrypt and sign the SPL and FIT, create the per-device DEK blobs,
 and insert the resulting CSFs and blobs before flashing. Do not treat this
 generator image as the final secure boot image.
@@ -101,7 +102,8 @@ DEKs as `dek_spl.bin` and `dek_fit.bin`. These files are inputs to the device,
 not the final blobs.
 
 On a closed device that has been closed with the same SRK keys, copy both DEK
-files to a FAT partition and boot the generator image. Run `dek_blob` once for
+files to a FAT partition and boot the generator image. Adjust `mmc 1:1` if the
+FAT partition is exposed at another device/partition. Run `dek_blob` once for
 each file:
 
 ```console
