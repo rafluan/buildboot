@@ -18,7 +18,7 @@ do_package_imx8m_hab_dek_blob() {
 	local generator_image="dek-blob-generator-$BOOT_IMAGE"
 
 	run_task do_copy_uboot
-	run_task do_copy_imx_atf
+	run_task do_copy_imx_atf_dek_blob
 	run_task do_copy_optee
 	run_task do_copy_dtbs
 	run_task do_create_dek_blob_dummy

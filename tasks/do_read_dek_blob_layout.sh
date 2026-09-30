@@ -42,7 +42,10 @@ do_read_dek_blob_layout_imx8m() {
 		data_blocks+=("$block")
 	done
 	write_dek_blob_blocks "$output/fit-decrypt-blocks.txt" "encrypted-fit-$BOOT_IMAGE" "${data_blocks[@]}"
-	write_dek_blob_blocks "$output/fit-auth-blocks.txt" "encrypted-fit-$BOOT_IMAGE" "${fit_blocks[0]}" "${data_blocks[@]}"
+	# The DEK blob is replaced per device after signing and must not be
+	# covered by Authenticate Data. Keep the FIT header and loadables only.
+	write_dek_blob_blocks "$output/fit-auth-blocks.txt" "encrypted-fit-$BOOT_IMAGE" \
+		"${fit_blocks[0]}" "${data_blocks[@]:1}"
 }
 
 write_dek_blob_blocks() {
