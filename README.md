@@ -9,9 +9,9 @@ exports values to the shell tasks.
 ```sh
 nix develop
 ./buildboot list
-./buildboot sources var-som-mx8mn mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1
-./buildboot build var-som-mx8mn mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1 --jobs 8
-./buildboot clean var-som-mx8mn
+./buildboot sources imx8mn-var-som mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1
+./buildboot build imx8mn-var-som mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1 --jobs 8
+./buildboot clean imx8mn-var-som
 ```
 
 Run `./buildboot` for the command menu. Use `./buildboot list` to find valid
@@ -36,8 +36,8 @@ HAB signing is optional. Add `--security hab` only when a signed i.MX8M boot
 image is required:
 
 ```sh
-./buildboot sources var-som-mx8mn mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1
-./buildboot build var-som-mx8mn mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1 \
+./buildboot sources imx8mn-var-som mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1
+./buildboot build imx8mn-var-som mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1 \
     --security hab --jobs 8
 ```
 
@@ -49,6 +49,88 @@ close a production device.
 
 The normal build command remains unsigned. The device does not need to be
 closed to boot and inspect a HAB-signed image.
+
+### Preparing an i.MX8M DEK-blob generator
+
+DEK-blob support is an optional layer on top of HAB and is currently configured
+for the VAR-SOM-MX8MN release above:
+
+```sh
+./buildboot sources imx8mn-var-som mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1
+./buildboot build imx8mn-var-som mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1 \
+    --security hab --encryption dek-blob --jobs 8
+```
+
+This builds U-Boot with the DEK-blob commands, OP-TEE with NXP DEK-blob
+encapsulation enabled, and ATF with the OP-TEE dispatcher. It replaces the
+prebuilt `tee.bin` from `imx-mkimage` with the newly built OP-TEE image. The
+result is the HAB-signed `dek-blob-generator-imx-boot-sd.bin`.
+
+This image starts on the closed board so U-Boot can encapsulate the two DEKs.
+It is not an encrypted image and contains a dummy DEK blob. The NXP procedure
+must still encrypt and sign the SPL and FIT, create the per-device DEK blobs,
+and insert the resulting CSFs and blobs before flashing. Do not treat this
+generator image as the final secure boot image.
+
+The build also creates `out/encryption/`. It contains the encrypted SPL and
+FIT image, `dek_spl.bin`, `dek_fit.bin`, their CSFs, and
+`assemble-dek-blob.sh`. The offsets are read from the HAB signer output for the
+current image; they are not fixed in the build scripts.
+The plaintext DEK files are set to owner-only permissions because they are
+secret keys.
+
+The generator image can be tested on an open development device. Write it at
+the configured boot offset (32 KiB for i.MX8MN), then boot it and run:
+
+```console
+=> hab_status
+=> help dek_blob
+=> help set_priblob_bitfield
+```
+
+The boot must complete without HAB events, and both commands must be present.
+`hab fuse not enabled` is expected on an open device. Do not run
+`set_priblob_bitfield`: it changes CAAM's PRIBLOB setting and prevents creation
+of blobs that the encrypted boot image can use.
+
+#### Per-device encrypted boot procedure
+
+The final encrypted image requires two DEKs, one for the SPL and one for the
+FIT. CST first encrypts the SPL and FIT on the host and writes their plaintext
+DEKs as `dek_spl.bin` and `dek_fit.bin`. These files are inputs to the device,
+not the final blobs.
+
+On a closed device that has been closed with the same SRK keys, copy both DEK
+files to a FAT partition and boot the generator image. Run `dek_blob` once for
+each file:
+
+```console
+=> fatload mmc 1:1 0x40400000 dek_spl.bin
+=> dek_blob 0x40400000 0x40401000 128
+=> fatwrite mmc 1:1 0x40401000 dek_spl_blob.bin 0x48
+=> reset
+=> fatload mmc 1:1 0x40402000 dek_fit.bin
+=> dek_blob 0x40402000 0x40403000 128
+=> fatwrite mmc 1:1 0x40403000 dek_fit_blob.bin 0x48
+```
+
+The command asks OP-TEE to use CAAM and produces
+`dek_spl_blob.bin` and `dek_fit_blob.bin`. Each resulting blob is tied to the
+device OTPMK and cannot be reused on another SoM.
+
+Finally, on the host, insert the encrypted SPL and FIT CSFs together with the
+two device-specific blobs into the encrypted boot image:
+
+```sh
+nix develop --command \
+    build/imx8mn-var-som/mx8mn-yocto-scarthgap-6.6.y_2.2.2-v1.1/out/encryption/assemble-dek-blob.sh \
+    /path/to/dek-blobs
+```
+
+The directory must contain exactly the 72-byte `dek_spl_blob.bin` and
+`dek_fit_blob.bin` files from that SoM. The script creates
+`out/encryption/encrypted-imx-boot-sd.bin`. Only that assembled image is the
+final encrypted boot image.
 
 ## Configuration and task layout
 
@@ -119,12 +201,12 @@ automatically tries the exact SoC function, `imx9`, and generic implementations.
 ### i.MX8MM Mini
 
 DART-MX8M-MINI and VAR-SOM-MX8M-MINI use
-`var-mx8mm-mini/mx8mm-yocto-scarthgap-6.6.y_2.2.2-v1.2`. The FIT includes both
+`imx8mm-var-dart/mx8mm-yocto-scarthgap-6.6.y_2.2.2-v1.2`. The FIT includes both
 board DTBs:
 
 ```sh
-./buildboot sources var-mx8mm-mini mx8mm-yocto-scarthgap-6.6.y_2.2.2-v1.2
-./buildboot build var-mx8mm-mini mx8mm-yocto-scarthgap-6.6.y_2.2.2-v1.2 --jobs 8
+./buildboot sources imx8mm-var-dart mx8mm-yocto-scarthgap-6.6.y_2.2.2-v1.2
+./buildboot build imx8mm-var-dart mx8mm-yocto-scarthgap-6.6.y_2.2.2-v1.2 --jobs 8
 ```
 
 ### DART-MX95
@@ -136,6 +218,6 @@ configuration targets the 8 GB LPDDR5 DART-MX95. The local Nix shell provides
 the required `arm-none-eabi-gcc` toolchain.
 
 ```sh
-./buildboot sources var-dart-mx95 mx95-yocto-wrynose-6.18.20-2.0.0-v1.2
-./buildboot build var-dart-mx95 mx95-yocto-wrynose-6.18.20-2.0.0-v1.2 --jobs 8
+./buildboot sources imx95-var-dart mx95-yocto-wrynose-6.18.20-2.0.0-v1.2
+./buildboot build imx95-var-dart mx95-yocto-wrynose-6.18.20-2.0.0-v1.2 --jobs 8
 ```

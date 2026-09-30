@@ -1,0 +1,18 @@
+From: Luan Rafael Carneiro <luan.r@variscite.com>
+Subject: [PATCH] imx_signer: allow five FIT loadables
+
+An encrypted i.MX8M FIT has U-Boot, its DTB, ATF, OP-TEE, and the
+DEK-blob placeholder, in addition to the FIT FDT itself. Reserve one
+more image slot so the signer does not write beyond g_images.
+
+---
+ inc/fdt.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/inc/fdt.h b/inc/fdt.h
+index 2eaec86..7862ff4 100644
+--- a/inc/fdt.h
++++ b/inc/fdt.h
+@@ -210 +210 @@
+-#define NUM_IMGS 0x5
++#define NUM_IMGS 0x6

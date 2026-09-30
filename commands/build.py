@@ -11,6 +11,7 @@ def build(
     jobs: int,
     root: Path,
     security: str = "none",
+    encryption: str = "none",
 ) -> None:
     board = config["board_config"]
     sources = config["sources"]
@@ -18,8 +19,21 @@ def build(
     firmware = config.get("firmware", {})
     oei = config.get("oei", {})
     system_manager = config.get("system_manager", {})
+    encryption_config = config.get("encryption", {}).get(encryption, {})
     if jobs < 1:
         raise ValueError("--jobs must be greater than zero")
+    if encryption != "none" and security != "hab":
+        raise ValueError("--encryption dek-blob requires --security hab")
+    if encryption != "none" and not board["soc"].startswith("iMX8M"):
+        raise ValueError("--encryption dek-blob is supported only on i.MX8M")
+    optee = sources.get("optee")
+    if encryption != "none" and not encryption_config:
+        raise ValueError(f"{config['board']} has no configuration for {encryption}")
+    if encryption != "none" and not optee:
+        raise ValueError(f"{config['board']} has no OP-TEE source")
+    optee_dir = work / optee["directory"] if optee else None
+    if encryption != "none" and not optee_dir.is_dir():
+        raise ValueError("OP-TEE source is missing; run buildboot sources first")
 
     env = os.environ.copy()
     env.update({
@@ -32,6 +46,8 @@ def build(
         "UBOOT_DIR": str(work / sources["uboot"]["directory"]),
         "UBOOT_DEFCONFIG": sources["uboot"]["defconfig"],
         "ATF_DIR": str(work / sources["atf"]["directory"]),
+        "OPTEE_DIR": str(optee_dir or ""),
+        "OPTEE_BOARD": encryption_config.get("optee_board", ""),
         "MKIMAGE_DIR": str(work / sources["mkimage"]["directory"]),
         "DDR_FIRMWARE_DIR": firmware_path(work, firmware.get("ddr"), "firmware/ddr/synopsys"),
         "ELE_FIRMWARE_FILE": firmware_path(work, firmware.get("ele"), package.get("ele_container", "")),
@@ -52,6 +68,7 @@ def build(
         "BOOT_IMAGE": package["output"],
         "DD_SEEK_KIB": str(package["dd_seek_kib"]),
         "BUILD_SECURITY": security,
+        "BUILD_ENCRYPTION": encryption.replace("-", "_"),
     })
 
     if security == "hab":

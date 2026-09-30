@@ -12,6 +12,12 @@ do_configure_imx8m_hab() {
 	run_task do_enable_hab_uboot
 }
 
+# Keep encrypted-boot settings in an override layered on the HAB variant.
+do_configure_imx8m_hab_dek_blob() {
+	do_configure_imx8m_hab
+	run_task do_enable_dek_blob_uboot
+}
+
 do_configure_imx95() {
 	run_task do_configure_uboot
 	run_task do_copy_imx_mkimage

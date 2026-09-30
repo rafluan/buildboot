@@ -51,6 +51,7 @@ pkgs.mkShell {
     # Python utilities used by U-Boot and Buildboot
     (python3.withPackages (pythonPackages: with pythonPackages; [
       jsonschema
+      cryptography
       pyelftools
       pyyaml
     ]))

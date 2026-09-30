@@ -11,6 +11,10 @@ stdenv.mkDerivation {
     hash = "sha256-KO7bKM1+bV2n0KUX+zfNWq5u/UrozvpJ3FT/U/gA4Oo=";
   };
 
+  patches = [
+    ./0001-allow-five-fit-images.patch
+  ];
+
   buildPhase = ''
     runHook preBuild
     make -C src CFLAGS="-O2 -Wall"

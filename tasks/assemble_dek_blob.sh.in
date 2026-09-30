@@ -1,0 +1,40 @@
+#!/bin/sh
+set -eu
+
+blobs="${1:?usage: assemble-dek-blob.sh BLOB_DIRECTORY}"
+output="@ENCRYPTION_DIR@"
+
+if [ ! -d "$blobs" ]; then
+	echo "buildboot: error: DEK blob directory does not exist: $blobs" >&2
+	exit 2
+fi
+
+for blob in dek_spl_blob.bin dek_fit_blob.bin; do
+	file="$blobs/$blob"
+	if [ ! -f "$file" ] || [ "$(wc -c < "$file")" -ne 72 ]; then
+		echo "buildboot: error: $file must be a 72-byte DEK blob" >&2
+		exit 2
+	fi
+done
+
+if ! command -v cst >/dev/null; then
+	echo "buildboot: error: cst is unavailable; enter the buildboot Nix shell" >&2
+	exit 2
+fi
+
+. "$output/layout.env"
+final="$output/encrypted-$BOOT_IMAGE"
+cp "$output/encrypted-fit-$BOOT_IMAGE" "$final"
+
+dd if="$output/csf_spl_sign.bin" of="$final" bs=1 seek=$((SPL_CSF_OFFSET)) conv=notrunc status=none
+dd if="$blobs/dek_spl_blob.bin" of="$final" bs=1 seek=$((SPL_BLOB_OFFSET)) conv=notrunc status=none
+dd if="$output/csf_fit_sign.bin" of="$final" bs=1 seek=$((FIT_CSF_OFFSET)) conv=notrunc status=none
+dd if="$blobs/dek_fit_blob.bin" of="$final" bs=1 seek=$((FIT_BLOB_OFFSET)) conv=notrunc status=none
+
+(
+	cd "$output"
+	SIG_DATA_PATH="@HAB_DATA@" cst -i csf_fit_fdt.txt -o csf_fit_fdt.bin
+)
+dd if="$output/csf_fit_fdt.bin" of="$final" bs=1 seek=$((FIT_FDT_CSF_OFFSET)) conv=notrunc status=none
+
+echo "Encrypted image: $final"

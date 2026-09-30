@@ -1,0 +1,41 @@
+[Header]
+    Version = 4.3
+    Hash Algorithm = sha256
+    Engine = CAAM
+    Engine Configuration = 0
+    Certificate Format = X509
+    Signature Format = CMS
+
+[Install SRK]
+    File = "@SRK_TABLE@"
+    Source index = 0
+
+[Install CSFK]
+    File = "@CSFK_CERT@"
+
+[Authenticate CSF]
+
+[Unlock]
+    Engine = CAAM
+    Features = MID
+
+[Install Key]
+    Verification index = 0
+    Target index = 2
+    File = "@IMG_CERT@"
+
+[Authenticate Data]
+    Verification index = 2
+@FIT_AUTH_BLOCKS@
+
+[Install Secret Key]
+    Verification Index = 0
+    Target Index = 0
+    Key = "dek_fit_dummy.bin"
+    Key Length = 128
+    Blob Address = 0x40400000
+
+[Decrypt Data]
+    Verification Index = 0
+    Mac Bytes = 16
+@FIT_DECRYPT_BLOCKS@

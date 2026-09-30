@@ -33,8 +33,11 @@ def main() -> None:
         sources(config, work)
         return
 
-    build(config, work, work / "out", args.jobs, ROOT, args.security)
-    image = work / "out" / "imx-boot-tools" / config["packaging"]["output"]
+    build(config, work, work / "out", args.jobs, ROOT, args.security, args.encryption)
+    image_name = config["packaging"]["output"]
+    if args.encryption == "dek-blob":
+        image_name = f"dek-blob-generator-{image_name}"
+    image = work / "out" / "imx-boot-tools" / image_name
     print(f"built {image}")
 
 

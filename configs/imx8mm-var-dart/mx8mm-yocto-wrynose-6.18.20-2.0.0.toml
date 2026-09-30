@@ -1,26 +1,29 @@
-# This release supports DART-MX8M-MINI and VAR-SOM-MX8M-MINI, revision v1.1+.
-board = "var-mx8mm-mini"
-release = "mx8mm-yocto-scarthgap-6.6.y_2.2.2-v1.2"
+# i.MX8MM board settings follow the Wrynose machine configuration; software
+# revisions follow the current Wrynose i.MX8MP BSP sources.
+board = "imx8mm-var-dart"
+release = "mx8mm-yocto-wrynose-6.18.20-2.0.0"
 [board_config]
 soc = "iMX8MM"
 memory = "lpddr4-ddr4"
 
 [sources.uboot]
 directory = "uboot-imx"
-url = "https://github.com/varigit/uboot-imx"
-branch = "lf_v2024.04_6.6.52-2.2.2_var01"
-commit = "16e046f1dbf65360deb1fff230b76a752aff3f22"
+url = "git@github.com:varigit-dev/uboot-imx"
+branch = "dev_imx8mp-lf_v2026.04_6.18.20_RND-3688"
+commit = "98728fd46bf009b19f32192a8cfcf6616f7f8958"
 defconfig = "imx8mm_var_dart_defconfig"
 
 [sources.atf]
-directory = "imx-atf"
+directory = "imx-atf-variscite"
 url = "https://github.com/varigit/imx-atf"
-branch = "lf_v2.10_6.6.52-2.2.2_var01"
+branch = "lf_v2.12_6.18.2-1.0.0_var01"
+commit = "bf53e42ff8fea3a1477df93ff264bcbee613f7aa"
 
 [sources.mkimage]
-directory = "imx-mkimage"
+directory = "imx-mkimage-variscite"
 url = "https://github.com/varigit/imx-mkimage"
-branch = "lf-6.6.52_2.2.2_var01"
+branch = "lf-6.18.20_2.0.0_var01"
+commit = "e877d8119d4599fb068f4599e6f22e2f4fcb593b"
 
 [sources.hab_certs]
 directory = "var-hab-certs"
@@ -30,15 +33,15 @@ commit = "0b2c9c39fbc5020b5faf8c7f1d0db5381c680785"
 
 [firmware.ddr]
 directory = "firmware-imx"
-package = "firmware-imx-8.26-d4c33ab.bin"
-url = "https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.26-d4c33ab.bin"
+package = "firmware-imx-8.32-1991416.bin"
+url = "https://www.nxp.com/lgfiles/NMG/MAD/YOCTO/firmware-imx-8.32-1991416.bin"
 files_glob = "firmware/ddr/synopsys/*"
 
 [packaging]
 soc = "iMX8MM"
 atf_platform = "imx8mm"
 dtbs = [
-    "imx8mm-var-dart-dt8mcustomboard.dtb",
+    "imx8mm-var-dart-sonataboard.dtb",
     "imx8mm-var-som-symphony.dtb",
 ]
 target = "flash_lpddr4_ddr4_evk"

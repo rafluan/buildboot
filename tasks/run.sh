@@ -8,4 +8,8 @@ for file in "$TASKS_DIR"/*.sh; do
 	[[ "$file" == "$TASKS_DIR/run.sh" ]] || source "$file"
 done
 
-run_task "$TASK"
+if [[ "${BUILD_ENCRYPTION:-none}" == "none" ]]; then
+	run_task "$TASK"
+else
+	run_encrypted_task "$TASK"
+fi

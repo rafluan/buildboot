@@ -1,0 +1,41 @@
+[Header]
+    Version = 4.3
+    Hash Algorithm = sha256
+    Engine = CAAM
+    Engine Configuration = 0
+    Certificate Format = X509
+    Signature Format = CMS
+
+[Install SRK]
+    File = "@SRK_TABLE@"
+    Source index = 0
+
+[Install CSFK]
+    File = "@CSFK_CERT@"
+
+[Authenticate CSF]
+
+[Unlock]
+    Engine = CAAM
+    Features = MID
+
+[Install Key]
+    Verification index = 0
+    Target index = 2
+    File = "@IMG_CERT@"
+
+[Authenticate Data]
+    Verification index = 2
+    Blocks = @SPL_START@ @SPL_OFFSET@ 0x40 "@PLAIN_IMAGE@"
+
+[Install Secret Key]
+    Verification Index = 0
+    Target Index = 0
+    Key = "dek_spl.bin"
+    Key Length = 128
+    Blob Address = @SPL_BLOB_ADDRESS@
+
+[Decrypt Data]
+    Verification Index = 0
+    Mac Bytes = 16
+    Blocks = @SPL_DECRYPT_START@ 0x40 @SPL_DECRYPT_SIZE@ "@SPL_ENCRYPTED_IMAGE@"

@@ -1,5 +1,5 @@
 # DART-MX95 Wrynose boot image configuration.
-board = "var-dart-mx95"
+board = "imx95-var-dart"
 release = "mx95-yocto-wrynose-6.18.20-2.0.0-v1.2"
 
 [board_config]

@@ -4,6 +4,7 @@ do_copy_imx_mkimage_imx8m() {
 	local stage="$OUT_DIR/imx-boot-tools"
 	local helper
 
+	rm -rf -- "$stage"
 	mkdir -p "$stage" "$OUT_DIR/scripts"
 	cp -a "$MKIMAGE_DIR/iMX8M/." "$stage/"
 
