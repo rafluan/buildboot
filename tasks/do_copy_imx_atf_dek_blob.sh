@@ -4,7 +4,7 @@
 # separate from the normal HAB path so the standard image cannot accidentally
 # consume the OP-TEE dispatcher.
 do_copy_imx_atf_dek_blob_imx8m() {
-	local file="$OUT_DIR/atf/$ATF_PLATFORM/release/bl31.bin"
+	local file="$OUT_DIR/atf-dek-blob/$ATF_PLATFORM/release/bl31.bin"
 	if [[ ! -f "$file" ]]; then
 		echo "buildboot: error: missing $file" >&2
 		return 2

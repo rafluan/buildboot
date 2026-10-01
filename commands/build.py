@@ -48,6 +48,7 @@ def build(
         "ATF_DIR": str(work / sources["atf"]["directory"]),
         "OPTEE_DIR": str(optee_dir or ""),
         "OPTEE_BOARD": encryption_config.get("optee_board", ""),
+        "OPTEE_UART_BASE": encryption_config.get("optee_uart_base", ""),
         "MKIMAGE_DIR": str(work / sources["mkimage"]["directory"]),
         "DDR_FIRMWARE_DIR": firmware_path(work, firmware.get("ddr"), "firmware/ddr/synopsys"),
         "ELE_FIRMWARE_FILE": firmware_path(work, firmware.get("ele"), package.get("ele_container", "")),

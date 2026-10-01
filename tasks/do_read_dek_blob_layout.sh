@@ -33,7 +33,7 @@ do_read_dek_blob_layout_imx8m() {
 
 	: > "$output/fit-decrypt-blocks.txt"
 	: > "$output/fit-auth-blocks.txt"
-	for block in "${fit_blocks[@]}"; do
+	for block in "${fit_blocks[@]:1}"; do
 		read -r address offset size <<< "$block"
 		if (( address == 0x40400000 )); then
 			printf 'FIT_BLOB_OFFSET=%q\n' "$offset" >> "$output/layout.env"
@@ -43,9 +43,9 @@ do_read_dek_blob_layout_imx8m() {
 	done
 	write_dek_blob_blocks "$output/fit-decrypt-blocks.txt" "encrypted-fit-$BOOT_IMAGE" "${data_blocks[@]}"
 	# The DEK blob is replaced per device after signing and must not be
-	# covered by Authenticate Data. Keep the FIT header and loadables only.
+	# covered by Authenticate Data. Keep the FIT header and every payload.
 	write_dek_blob_blocks "$output/fit-auth-blocks.txt" "encrypted-fit-$BOOT_IMAGE" \
-		"${fit_blocks[0]}" "${data_blocks[@]:1}"
+		"${fit_blocks[0]}" "${data_blocks[@]}"
 }
 
 write_dek_blob_blocks() {

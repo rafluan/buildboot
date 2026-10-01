@@ -57,3 +57,5 @@ keypass = "Variscite_password"
 
 [encryption.dek-blob]
 optee_board = "imx-mx8mnevk"
+# The VAR-SOM console is UART4; the NXP EVK flavor defaults to UART2.
+optee_uart_base = "UART4_BASE"

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 do_compile_imx_atf_dek_blob_imx8m() {
-	local out="$OUT_DIR/atf"
+	local out="$OUT_DIR/atf-dek-blob"
 	: "${CROSS_COMPILE:?enter the arm64 Nix shell so CROSS_COMPILE is set}"
 
 	env -u LDFLAGS make -C "$ATF_DIR" \
